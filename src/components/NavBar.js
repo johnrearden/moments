@@ -6,10 +6,13 @@ import styles from "../styles/NavBar.module.css";
 import { useCurrentUser, useSetCurrentUser } from '../contexts/CurrentUserContext';
 import Avatar from './Avatar';
 import axios from 'axios';
+import useClickOutsideToggle from '../hooks/useClickOutsideToggle';
 
 const NavBar = () => {
     const currentUser = useCurrentUser();
     const setCurrentUser = useSetCurrentUser();
+
+    const {expanded, setExpanded, ref} = useClickOutsideToggle();
 
     const handleSignout = async () => {
         try {
@@ -81,14 +84,17 @@ const NavBar = () => {
         </>)
 
     return (
-        <Navbar className={styles.NavBar} fixed="top" expand="md">
+        <Navbar expanded={expanded} className={styles.NavBar} fixed="top" expand="md">
             <Container>
                 <NavLink to="/">
                     <Navbar.Brand>
                         <img src={logo} alt="logo" height="45"></img>
                     </Navbar.Brand>
                 </NavLink>
-                <Navbar.Toggle aria-controls="basic-navbar-nav" />
+                <Navbar.Toggle
+                    ref={ref}
+                    aria-controls="basic-navbar-nav"
+                    onClick={() => setExpanded(!expanded)} />
                 <Navbar.Collapse id="basic-navbar-nav">
                     <Nav className="ml-auto text-left">
 
