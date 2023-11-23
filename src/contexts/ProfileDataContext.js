@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
-import { SetCurrentUserContext } from './CurrentUserContext';
 
 import { useCurrentUser } from './CurrentUserContext';
 import { axiosReq, axiosRes } from '../api/axiosDefaults';
+import { followHelper, unfollowHelper } from '../utils/utils';
 
 export const ProfileDataContext = createContext();
 export const SetProfileDataContext = createContext();
@@ -21,40 +21,48 @@ const ProfileDataProvider = ({ children }) => {
 
     const handleFollow = async (clickedProfile) => {
         try {
-            const {data} = await axiosRes.post('/followers/', {
-                followed: clickedProfile.id
-            })
+            const { data } = await axiosRes.post("/followers/", {
+                followed: clickedProfile.id,
+            });
 
-            setProfileData(prevState => ({
-                ...prevState, 
+            setProfileData((prevState) => ({
+                ...prevState,
                 pageProfile: {
-                    results: prevState.pageProfile.results.map(profile => {
-                        return profile.id === clickedProfile.id
-                            ? {
-                                ...profile,
-                                followers_count: profile.followers_count + 1,
-                                following_id: data.id
-                            }
-                            : profile.is_owner ? {
-                                ...profile, following_count: profile.following_count + 1
-                            } : profile
-                            
-                    }) 
+                    results: prevState.pageProfile.results.map((profile) =>
+                        followHelper(profile, clickedProfile, data.id)
+                    ),
                 },
                 popularProfiles: {
                     ...prevState.popularProfiles,
-                    results: prevState.popularProfiles.results.map(profile => {
-                        return profile.id === clickedProfile.id
-                            ? {
-                                ...profile,
-                                followers_count: profile.followers_count + 1,
-                                following_id: data.id
-                            }
-                            : profile.is_owner ? {
-                                ...profile, following_count: profile.following_count + 1
-                            } : profile
-                            
-                    })
+                    results: prevState.popularProfiles.results.map((profile) =>
+                        followHelper(profile, clickedProfile, data.id)
+                    ),
+                },
+            }));
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
+    const handleUnfollow = async (clickedProfile) => {
+        try {
+            console.log(`/followers/${clickedProfile.following_id}/`)
+            const url = '/followers/' + clickedProfile.following_id + '/';
+            console.log(url);
+            await axiosRes.delete(url);
+
+            setProfileData((prevState) => ({
+                ...prevState,
+                pageProfile: {
+                    results: prevState.pageProfile.results.map((profile) =>
+                        unfollowHelper(profile, clickedProfile)
+                    ),
+                },
+                popularProfiles: {
+                    ...prevState.popularProfiles,
+                    results: prevState.popularProfiles.results.map((profile) =>
+                        unfollowHelper(profile, clickedProfile)
+                    ),
                 }
             }))
 
@@ -82,7 +90,7 @@ const ProfileDataProvider = ({ children }) => {
 
     return (
         <ProfileDataContext.Provider value={profileData}>
-            <SetProfileDataContext.Provider value={{setProfileData, handleFollow}}>
+            <SetProfileDataContext.Provider value={{ setProfileData, handleFollow, handleUnfollow }}>
                 {children}
             </SetProfileDataContext.Provider>
         </ProfileDataContext.Provider>

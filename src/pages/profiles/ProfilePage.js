@@ -12,6 +12,7 @@ import appStyles from "../../App.module.css";
 import btnStyles from "../../styles/Button.module.css";
 
 import PopularProfiles from "./PopularProfiles";
+import { ProfileEditDropdown } from "../../components/MoreDropdown";
 import { useCurrentUser } from "../../contexts/CurrentUserContext";
 import { useParams } from "react-router-dom/cjs/react-router-dom";
 import { axiosReq } from "../../api/axiosDefaults";
@@ -26,11 +27,11 @@ function ProfilePage() {
     const currentUser = useCurrentUser();
 
     const { id } = useParams();
-    const { setProfileData, handleFollow } = useSetProfileData();
+    const { setProfileData, handleFollow, handleUnfollow } = useSetProfileData();
     const { pageProfile } = useProfileData();
     const [profile] = pageProfile.results;
 
-    const [profilePosts, setProfilePosts] = useState([]);
+    const [profilePosts, setProfilePosts] = useState({results: []});
 
     const is_owner = currentUser?.username === profile?.owner;
 
@@ -56,6 +57,7 @@ function ProfilePage() {
 
     const mainProfile = (
         <>
+            {profile?.is_owner && <ProfileEditDropdown id={profile?.id} />}
             <Row noGutters className="px-3 text-center">
                 <Col lg={3} className="text-lg-left">
                     <Image
@@ -87,7 +89,7 @@ function ProfilePage() {
                         profile?.following_id ? (
                             <Button
                                 className={`${btnStyles.Button} ${btnStyles.BlackOutline}`}
-                                onClick={() => { }}
+                                onClick={() => {handleUnfollow(profile)}}
                             >unfollow</Button>
                         ) : (
                             <Button
@@ -103,9 +105,7 @@ function ProfilePage() {
         </>
     );
 
-    console.log('is_owner', JSON.stringify(is_owner, null, 2))
-    console.log('currentUser', JSON.stringify(currentUser, null, 2))
-    console.log('profile?.following_id?', JSON.stringify(profile?.following_id, null, 2))
+    
 
     const mainProfilePosts = (
         <>
