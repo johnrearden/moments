@@ -1,12 +1,11 @@
 import axios from "axios";
 import { useEffect } from "react";
 import { useHistory } from "react-router-dom/cjs/react-router-dom"
-import UserPasswordForm from "../pages/profiles/UserPasswordForm";
 
 export const useRedirect = (userAuthStatus) => {
     const history = useHistory();
 
-    useEffect = (() => {
+    useEffect(() => {
         const handleMount = async () => {
             try {
                 await axios.post('dj-rest-auth/token/refresh/');
