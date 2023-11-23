@@ -28,9 +28,12 @@ const UsernameForm = () => {
     const setCurrentUser = useSetCurrentUser();
 
     useEffect(() => {
-        if (currentUser?.profile_id?.toString() === id) {
-            setUsername(currentUser.username);
-        } else {
+        // if (currentUser?.profile_id?.toString() === id) {
+        //     setUsername(currentUser.username);
+        // } else {
+        //     history.push("/");
+        // }
+        if (currentUser?.profile_id?.toString() !== id) {
             history.push("/");
         }
     }, [currentUser, history, id]);
